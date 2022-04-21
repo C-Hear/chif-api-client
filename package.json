@@ -1,0 +1,11 @@
+{
+  "name": "chif-api-client",
+  "version": "1.0.0",
+  "main": "chif-api.mjs",
+  "dependencies": {
+    "axios": "^0.26.1",
+    "dotenv": "^16.0.0",
+    "form-data": "^4.0.0",
+    "yargs": "^17.4.1"
+  }
+}

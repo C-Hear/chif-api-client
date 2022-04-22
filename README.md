@@ -26,14 +26,16 @@ CHIF_API_TOKEN=your-api-token
 chif-api.mjs <command>
 
 Commands:
-  chif-api.mjs create    Create CHIF
-  chif-api.mjs status   Get CHIF task status
-  chif-api.mjs download  Download completed CHIF
-  chif-api.mjs block     Block CHIF
-  chif-api.mjs unblock   Unblock CHIF
-  chif-api.mjs getBlock  Get CHIF block status
-  chif-api.mjs getFiles  Get CHIF files information
-  chif-api.mjs delete    Delete CHIF
+  chif-api.mjs create     Create CHIF
+  chif-api.mjs status     Get CHIF task status
+  chif-api.mjs download   Download completed CHIF
+  chif-api.mjs block      Block CHIF
+  chif-api.mjs unblock    Unblock CHIF
+  chif-api.mjs getBlock   Get CHIF block status
+  chif-api.mjs getFiles   Get CHIF files information
+  chif-api.mjs delete     Delete CHIF
+  chif-api.mjs publish    Publish CHIF
+  chif-api.mjs unpublish  Unpublish CHIF
 
 Options:
   --help     Show help                                                 [boolean]
@@ -42,6 +44,7 @@ Options:
      [string] [required] [default: "https://extchifmanagerv5.azurewebsites.net"]
   --org_id   Organization ID                                 [string] [required]
   --token    API token                                       [string] [required]
+  --log      Log file                         [string] [default: "chif-api.log"]
 ```
 
 ### Create
@@ -170,6 +173,32 @@ API reference:
 chif-api.mjs delete
 
 Delete CHIF
+
+Options:
+  --uuid     CHIF UUID                                       [string] [required]
+```
+
+### Publish
+
+Publish a created CHIF to CDN
+
+```
+chif-api.mjs publish
+
+Publish CHIF
+
+Options:
+  --uuid     CHIF UUID                                       [string] [required]
+```
+
+### Unpublish
+
+Unpublish a previously-published CHIF file from CDN
+
+```
+chif-api.mjs unpublish
+
+Unpublish CHIF
 
 Options:
   --uuid     CHIF UUID                                       [string] [required]

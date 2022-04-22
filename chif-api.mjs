@@ -99,6 +99,18 @@ const args = yargs(hideBin(process.argv))
       description: 'CHIF UUID',
       demandOption: true,
     }))
+  .command('publish', 'Publish CHIF', (yargs) => yargs
+    .option('uuid', {
+      type: 'string',
+      description: 'CHIF UUID',
+      demandOption: true,
+    }))
+  .command('unpublish', 'Unpublish CHIF', (yargs) => yargs
+    .option('uuid', {
+      type: 'string',
+      description: 'CHIF UUID',
+      demandOption: true,
+    }))
   .demandCommand(1)
   .parse();
 
@@ -150,6 +162,13 @@ withDefer(async (defer) => {
         break;
       case 'delete':
         await del(args.uuid);
+        break;
+      case 'publish':
+        const data = await publish(args.uuid);
+        console.log(data.url);
+        break;
+      case 'unpublish':
+        await unpublish(args.uuid);
         break;
       default:
         console.log(`Unknown command: ${args._[0]}`);
@@ -229,12 +248,14 @@ function download(uuid, chif) {
 
 async function block(uuid, code, reason) {
   await log(`Blocking ${uuid}: ${code}: ${reason}`);
-  return await api.post(`block_file/org_id/${args.org_id}/uuid/${uuid}`, { code, reason });
+  const response = await api.post(`block_file/org_id/${args.org_id}/uuid/${uuid}`, { code, reason });
+  return response.data;
 }
 
 async function unblock(uuid) {
   await log(`Unblocking ${uuid}`);
-  return await api.delete(`unblock_file/org_id/${args.org_id}/uuid/${uuid}`);
+  const response = await api.delete(`unblock_file/org_id/${args.org_id}/uuid/${uuid}`);
+  return response.data;
 }
 
 async function getBlock(uuid) {
@@ -249,7 +270,20 @@ async function getFiles() {
 
 async function del(uuid) {
   await log(`Deleting ${uuid}`);
-  return await api.delete(`delete_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
+  const response = await api.delete(`delete_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
+  return response.data;
+}
+
+async function publish(uuid) {
+  await log(`Publishing ${uuid}`);
+  const response = await api.post(`publish_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
+  return response.data;
+}
+
+async function unpublish(uuid) {
+  await log(`Unpublishing ${uuid}`);
+  const response = await api.delete(`unpublish_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
+  return response.data;
 }
 
 function wrap(value, fn) {

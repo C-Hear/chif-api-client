@@ -259,11 +259,13 @@ async function unblock(uuid) {
 }
 
 async function getBlock(uuid) {
+  await log(`Getting block for ${uuid}`);
   const response = await api.get(`exception_file/org_id/${args.org_id}/uuid/${uuid}`);
   return response.data;
 }
 
 async function getFiles() {
+  await log(`Getting files`);
   const response = await api.get(`get_file_entry/org_id/${args.org_id}`);
   console.log(JSON.stringify(response.data, null, '  '));
 }

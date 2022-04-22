@@ -1,6 +1,6 @@
 {
   "name": "chif-api-client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "chif-api.mjs",
   "dependencies": {
     "axios": "^0.26.1",

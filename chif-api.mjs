@@ -31,6 +31,11 @@ const args = yargs(hideBin(process.argv))
     default: process.env.CHIF_API_TOKEN,
     demandOption: true,
   })
+  .option('log', {
+    type: 'string',
+    description: 'Log file',
+    default: 'chif-api.log',
+  })
   .command('create', 'Create CHIF', (yargs) => yargs
     .option('manifest', {
       type: 'string',
@@ -104,45 +109,60 @@ const api = axios.create({
   },
 });
 
-try {
-  switch (args._[0]) {
-    case 'create':
-      await create(args.manifest, args.chif);
-      break;
-    case 'status':
-      const task = await status(args.uuid);
-      console.log(JSON.stringify(task, null, '  '));
-      break;
-    case 'download':
-      await download(args.uuid, args.chif);
-      break;
-    case 'block':
-      await block(args.uuid, args.code, args.reason);
-      break;
-    case 'unblock':
-      await unblock(args.uuid);
-      break;
-    case 'getBlock': {
-      const block = await getBlock(args.uuid);
-      console.log(JSON.stringify(block, null, '  '));
-      break;
-    }
-    case 'getFiles':
-      await getFiles();
-      break;
-    case 'delete':
-      await del(args.uuid);
-      break;
-    default:
-      console.log(`Unknown command: ${args._[0]}`);
-      break;
+let log = (message) => console.error(message);
+
+withDefer(async (defer) => {
+  if (args.log) {
+    const logFile = await fs.open(args.log, 'a', 0o644);
+    defer(() => logFile.close());
+
+    log = wrap(log, (log) => async (message) => {
+      log(message);
+      await logFile.write(`${new Date().toISOString()}: ${message}\n`);
+    });
   }
-} catch (err) {
-  console.log(err.stack);
-}
+
+  try {
+    switch (args._[0]) {
+      case 'create':
+        await create(args.manifest, args.chif);
+        break;
+      case 'status':
+        const task = await status(args.uuid);
+        console.log(JSON.stringify(task, null, '  '));
+        break;
+      case 'download':
+        await download(args.uuid, args.chif);
+        break;
+      case 'block':
+        await block(args.uuid, args.code, args.reason);
+        break;
+      case 'unblock':
+        await unblock(args.uuid);
+        break;
+      case 'getBlock': {
+        const block = await getBlock(args.uuid);
+        console.log(JSON.stringify(block, null, '  '));
+        break;
+      }
+      case 'getFiles':
+        await getFiles();
+        break;
+      case 'delete':
+        await del(args.uuid);
+        break;
+      default:
+        console.log(`Unknown command: ${args._[0]}`);
+        break;
+    }
+  } catch (err) {
+    await log(err.stack);
+  }
+});
 
 function create(manifest, chif) {
   return withDefer(async (defer) => {
+    await log(`Creating ${chif} from ${manifest}`);
     const dir = path.resolve(path.dirname(manifest));
 
     const form = new FormData();
@@ -161,7 +181,7 @@ function create(manifest, chif) {
       form.append(name, handle.createReadStream(), { filename: part.filename || name });
     }
 
-    console.log('Submitting encode task');
+    await log('Submitting encode task');
     let response = await api.post(`encoder/org_id/${args.org_id}`, form, {
       headers: {
         ...form.getHeaders(),
@@ -172,7 +192,7 @@ function create(manifest, chif) {
     console.log(`CHIF UUID: ${uuid}`);
 
     // Check the status
-    console.log('Waiting on task');
+    await log('Waiting on task');
     while (true) {
       const { queue_status } = await status(uuid);
       if (queue_status === 'failed') {
@@ -185,7 +205,7 @@ function create(manifest, chif) {
     }
 
     // Download the file
-    console.log(`Downloading ${chif}`);
+    await log(`Downloading ${chif}`);
     await download(uuid, chif);
   });
 }
@@ -207,12 +227,14 @@ function download(uuid, chif) {
   });
 }
 
-function block(uuid, code, reason) {
-  return api.post(`block_file/org_id/${args.org_id}/uuid/${uuid}`, { code, reason });
+async function block(uuid, code, reason) {
+  await log(`Blocking ${uuid}: ${code}: ${reason}`);
+  return await api.post(`block_file/org_id/${args.org_id}/uuid/${uuid}`, { code, reason });
 }
 
-function unblock(uuid) {
-  return api.delete(`unblock_file/org_id/${args.org_id}/uuid/${uuid}`);
+async function unblock(uuid) {
+  await log(`Unblocking ${uuid}`);
+  return await api.delete(`unblock_file/org_id/${args.org_id}/uuid/${uuid}`);
 }
 
 async function getBlock(uuid) {
@@ -225,8 +247,13 @@ async function getFiles() {
   console.log(JSON.stringify(response.data, null, '  '));
 }
 
-function del(uuid) {
-  return api.delete(`delete_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
+async function del(uuid) {
+  await log(`Deleting ${uuid}`);
+  return await api.delete(`delete_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
+}
+
+function wrap(value, fn) {
+  return fn(value)
 }
 
 async function withDefer(fn) {

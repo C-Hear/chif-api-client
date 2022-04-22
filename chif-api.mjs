@@ -46,6 +46,16 @@ const args = yargs(hideBin(process.argv))
       type: 'string',
       description: 'CHIF filename',
       demandOption: true,
+    })
+    .option('download', {
+      type: 'boolean',
+      description: 'Download created CHIF',
+      default: true,
+    })
+    .option('publish', {
+      type: 'boolean',
+      description: 'Publish created CHIF to CDN',
+      default: false
     }))
   .command('status', 'Get CHIF task status', (yargs) => yargs
     .option('uuid', {
@@ -137,9 +147,10 @@ withDefer(async (defer) => {
   try {
     switch (args._[0]) {
       case 'create':
-        await create(args.manifest, args.chif);
+        await create(args.manifest, args.chif, args.download, args.publish);
         break;
       case 'status':
+        await log(`Getting ${args.uuid} status`);
         const task = await status(args.uuid);
         console.log(JSON.stringify(task, null, '  '));
         break;
@@ -164,8 +175,8 @@ withDefer(async (defer) => {
         await del(args.uuid);
         break;
       case 'publish':
-        const data = await publish(args.uuid);
-        console.log(data.url);
+        const { url } = await publish(args.uuid);
+        console.log(`CDN URL: ${url}`);
         break;
       case 'unpublish':
         await unpublish(args.uuid);
@@ -179,7 +190,7 @@ withDefer(async (defer) => {
   }
 });
 
-function create(manifest, chif) {
+function create(manifest, chif, shouldDownload, shouldPublish) {
   return withDefer(async (defer) => {
     await log(`Creating ${chif} from ${manifest}`);
     const dir = path.resolve(path.dirname(manifest));
@@ -223,9 +234,14 @@ function create(manifest, chif) {
       await sleep(500);
     }
 
-    // Download the file
-    await log(`Downloading ${chif}`);
-    await download(uuid, chif);
+    if (shouldDownload) {
+      await download(uuid, chif);
+    }
+
+    if (shouldPublish) {
+      const { url } = await publish(uuid);
+      console.log(`CDN URL: ${url}`);
+    }
   });
 }
 
@@ -236,6 +252,7 @@ async function status(uuid) {
 
 function download(uuid, chif) {
   return withDefer(async (defer) => {
+    await log(`Downloading ${chif}`);
     let response = await api.get(`download_file/org_id/${args.org_id}/file_entry_id/${uuid}.chif`);
 
     const outputHandle = await fs.open(chif, 'w', 0o644);

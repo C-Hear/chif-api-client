@@ -64,6 +64,8 @@ Create CHIF
 Options:
   --manifest  CHIF manifest                                  [string] [required]
   --chif      CHIF filename                                  [string] [required]
+  --download  Download created CHIF                    [boolean] [default: true]
+  --publish   Publish created CHIF to CDN             [boolean] [default: false]
 ```
 
 ### Status

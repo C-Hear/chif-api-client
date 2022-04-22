@@ -87,6 +87,13 @@ const args = yargs(hideBin(process.argv))
       description: 'CHIF UUID',
       demandOption: true,
     }))
+  .command('getFiles', 'Get CHIF files information')
+  .command('delete', 'Delete CHIF', (yargs) => yargs
+    .option('uuid', {
+      type: 'string',
+      description: 'CHIF UUID',
+      demandOption: true,
+    }))
   .demandCommand(1)
   .parse();
 
@@ -120,6 +127,15 @@ try {
       console.log(JSON.stringify(block, null, '  '));
       break;
     }
+    case 'getFiles':
+      await getFiles();
+      break;
+    case 'delete':
+      await del(args.uuid);
+      break;
+    default:
+      console.log(`Unknown command: ${args._[0]}`);
+      break;
   }
 } catch (err) {
   console.log(err.stack);
@@ -202,6 +218,15 @@ function unblock(uuid) {
 async function getBlock(uuid) {
   const response = await api.get(`exception_file/org_id/${args.org_id}/uuid/${uuid}`);
   return response.data;
+}
+
+async function getFiles() {
+  const response = await api.get(`get_file_entry/org_id/${args.org_id}`);
+  console.log(JSON.stringify(response.data, null, '  '));
+}
+
+function del(uuid) {
+  return api.delete(`delete_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
 }
 
 async function withDefer(fn) {

@@ -32,6 +32,8 @@ Commands:
   chif-api.mjs block     Block CHIF
   chif-api.mjs unblock   Unblock CHIF
   chif-api.mjs getBlock  Get CHIF block status
+  chif-api.mjs getFiles  Get CHIF files information
+  chif-api.mjs delete    Delete CHIF
 
 Options:
   --help     Show help                                                 [boolean]
@@ -139,6 +141,35 @@ API reference:
 chif-api.mjs getBlock
 
 Get CHIF block status
+
+Options:
+  --uuid     CHIF UUID                                       [string] [required]
+```
+
+### Get Files
+
+Get file information for created CHIFs.
+
+API reference:
+- [Get CHIF File Information by Organization ID](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#get-chif-file-entry-information-by-organization-id)
+
+```
+chif-api.mjs getFiles
+
+Get CHIF files information
+```
+
+### Delete
+
+Delete a created CHIF.
+
+API reference:
+- [Delete CHIF File](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#delete-chif-file)
+
+```
+chif-api.mjs delete
+
+Delete CHIF
 
 Options:
   --uuid     CHIF UUID                                       [string] [required]

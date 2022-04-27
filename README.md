@@ -26,9 +26,10 @@ CHIF_API_TOKEN=your-api-token
 chif-api.mjs <command>
 
 Commands:
-  chif-api.mjs create     Create CHIF
+  chif-api.mjs encode     Encode CHIF
+  chif-api.mjs decode     Decode CHIF
   chif-api.mjs status     Get CHIF task status
-  chif-api.mjs download   Download completed CHIF
+  chif-api.mjs download   Download encoded CHIF
   chif-api.mjs block      Block CHIF
   chif-api.mjs unblock    Unblock CHIF
   chif-api.mjs getBlock   Get CHIF block status
@@ -47,9 +48,9 @@ Options:
   --log      Log file                         [string] [default: "chif-api.log"]
 ```
 
-### Create
+### Encode
 
-Create and download a CHIF file from a [manifest](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#create-a-chif).
+Encode and download a CHIF file from a [manifest](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#create-a-chif).
 
 API reference:
 - [Create A CHIF](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#create-a-chif)
@@ -57,15 +58,30 @@ API reference:
 - [Get CHIF File by Downloadable Link](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#get-chif-file-by-downloadable-link)
 
 ```
-chif-api.mjs create
+chif-api.mjs encode
 
-Create CHIF
+Encode CHIF
+
 
 Options:
   --manifest  CHIF manifest                                  [string] [required]
   --chif      CHIF filename                                  [string] [required]
-  --download  Download created CHIF                    [boolean] [default: true]
-  --publish   Publish created CHIF to CDN             [boolean] [default: false]
+  --download  Download encoded CHIF                    [boolean] [default: true]
+  --publish   Publish encoded CHIF to CDN             [boolean] [default: false]
+```
+
+### Decode
+
+Decode a CHIF and download its zipped contents.
+
+```
+chif-api.mjs decode
+
+Decode CHIF
+
+Options:
+  --chif      CHIF filename                                  [string] [required]
+  --manifest  CHIF manifest                                  [string] [required]
 ```
 
 ### Status
@@ -153,7 +169,7 @@ Options:
 
 ### Get Files
 
-Get file information for created CHIFs.
+Get file information for encoded CHIFs.
 
 API reference:
 - [Get CHIF File Information by Organization ID](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#get-chif-file-entry-information-by-organization-id)
@@ -166,7 +182,7 @@ Get CHIF files information
 
 ### Delete
 
-Delete a created CHIF.
+Delete an encoded CHIF.
 
 API reference:
 - [Delete CHIF File](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#delete-chif-file)
@@ -182,7 +198,7 @@ Options:
 
 ### Publish
 
-Publish a created CHIF to CDN
+Publish an encoded CHIF to CDN
 
 ```
 chif-api.mjs publish

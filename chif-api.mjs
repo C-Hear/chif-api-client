@@ -36,7 +36,7 @@ const args = yargs(hideBin(process.argv))
     description: 'Log file',
     default: 'chif-api.log',
   })
-  .command('create', 'Create CHIF', (yargs) => yargs
+  .command('encode', 'Encode CHIF', (yargs) => yargs
     .option('manifest', {
       type: 'string',
       description: 'CHIF manifest',
@@ -49,13 +49,24 @@ const args = yargs(hideBin(process.argv))
     })
     .option('download', {
       type: 'boolean',
-      description: 'Download created CHIF',
+      description: 'Download encoded CHIF',
       default: true,
     })
     .option('publish', {
       type: 'boolean',
-      description: 'Publish created CHIF to CDN',
+      description: 'Publish encoded CHIF to CDN',
       default: false
+    }))
+  .command('decode', 'Decode CHIF', (yargs) => yargs
+    .option('chif', {
+      type: 'string',
+      description: 'CHIF filename',
+      demandOption: true,
+    })
+    .option('manifest', {
+      type: 'string',
+      description: 'CHIF manifest',
+      demandOption: true,
     }))
   .command('status', 'Get CHIF task status', (yargs) => yargs
     .option('uuid', {
@@ -146,8 +157,11 @@ withDefer(async (defer) => {
 
   try {
     switch (args._[0]) {
-      case 'create':
-        await create(args.manifest, args.chif, args.download, args.publish);
+      case 'encode':
+        await encode(args.manifest, args.chif, args.download, args.publish);
+        break;
+      case 'decode':
+        await decode(args.chif, args.manifest);
         break;
       case 'status':
         await log(`Getting ${args.uuid} status`);
@@ -190,9 +204,9 @@ withDefer(async (defer) => {
   }
 });
 
-function create(manifest, chif, shouldDownload, shouldPublish) {
+function encode(manifest, chif, shouldDownload, shouldPublish) {
   return withDefer(async (defer) => {
-    await log(`Creating ${chif} from ${manifest}`);
+    await log(`Encoding ${chif} from ${manifest}`);
     const dir = path.resolve(path.dirname(manifest));
 
     const form = new FormData();
@@ -242,6 +256,38 @@ function create(manifest, chif, shouldDownload, shouldPublish) {
       const { url } = await publish(uuid);
       console.log(`CDN URL: ${url}`);
     }
+  });
+}
+
+function decode(chif, manifest) {
+  return withDefer(async (defer) => {
+    await log(`Decoding ${chif} with ${manifest}`);
+
+    const form = new FormData();
+
+    // Attach the CHIF
+    const chifHandle = await fs.open(chif);
+    defer(() => chifHandle.close());
+    form.append('chif', chifHandle.createReadStream(), { filename: chif });
+
+    // Attach the manifest
+    const manifestHandle = await fs.open(manifest);
+    defer(() => manifestHandle.close());
+    form.append('manifest', manifestHandle.createReadStream(), { filename: manifest });
+
+    const response = await api.post(`decoder/org_id/${args.org_id}`, form, {
+      headers: {
+        ...form.getHeaders(),
+      },
+      responseType: 'stream'
+    });
+
+    const filename = response.headers['content-disposition'].match(/filename="(.*?)"/)[1];
+    const zipHandle = await fs.open(filename, 'w', 0o644);
+    defer(() => zipHandle.close());
+
+    await log(`Downloading ${filename}`);
+    await pipeline(response.data, zipHandle.createWriteStream());
   });
 }
 

@@ -190,13 +190,13 @@ withDefer(async (defer) => {
         break;
       case 'publish':
         const { url } = await publish(args.uuid);
-        console.log(`CDN URL: ${url}`);
+        log(`CDN URL: ${url}`);
         break;
       case 'unpublish':
         await unpublish(args.uuid);
         break;
       default:
-        console.log(`Unknown command: ${args._[0]}`);
+        log(`Unknown command: ${args._[0]}`);
         break;
     }
   } catch (err) {
@@ -233,7 +233,7 @@ function encode(manifest, chif, shouldDownload, shouldPublish) {
     });
 
     const uuid = response.data.task_id;
-    console.log(`CHIF UUID: ${uuid}`);
+    log(`CHIF UUID: ${uuid}`);
 
     // Check the status
     await log('Waiting on task');
@@ -254,7 +254,7 @@ function encode(manifest, chif, shouldDownload, shouldPublish) {
 
     if (shouldPublish) {
       const { url } = await publish(uuid);
-      console.log(`CDN URL: ${url}`);
+      log(`CDN URL: ${url}`);
     }
   });
 }

@@ -147,6 +147,7 @@ let log = (message) => console.error(message);
 withDefer(async (defer) => {
   if (args.log) {
     const logFile = await fs.open(args.log, 'a', 0o644);
+    await logFile.write(`----- ${new Date().toISOString()} -----\n`);
     defer(() => logFile.close());
 
     log = wrap(log, (log) => async (message) => {

@@ -136,6 +136,10 @@ Get recent CHIF events
 
 Options:
   --uuid     CHIF UUID                                       [string] [required]
+  --start    Start time                                                 [string]
+  --end      End time                                                   [string]
+  --order    Sort order                               [string] [default: "DESC"]
+  --limit    Result limit                                [number] [default: 100]
 ```
 
 ### Block

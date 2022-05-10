@@ -90,7 +90,27 @@ const args = yargs(hideBin(process.argv))
       type: 'string',
       description: 'CHIF UUID',
       demandOption: true,
-    }))
+    })
+    .option("start", {
+      type: "string",
+      description: "Start time",
+    })
+    .option("end", {
+      type: "string",
+      description: "End time",
+
+    })
+    .option("order", {
+      type: "string",
+      description: "Sort order",
+      default: "DESC",
+    })
+    .option("limit", {
+      type: "number",
+      description: "Result limit",
+      default: 100,
+    })
+  )
   .command('block', 'Block CHIF', (yargs) => yargs
     .option('uuid', {
       type: 'string',
@@ -181,7 +201,7 @@ withDefer(async (defer) => {
         await download(args.uuid, args.chif);
         break;
       case 'getEvents':
-        await getEvents(args.uuid);
+        await getEvents(args.uuid, args.start, args.end, args.order, args.limit);
         break;
       case 'block':
         await block(args.uuid, args.code, args.reason);
@@ -321,9 +341,16 @@ function download(uuid, chif) {
   });
 }
 
-async function getEvents(uuid) {
+async function getEvents(uuid, start, end, order, limit) {
   await log(`Getting events`);
-  const response = await api.get(`file_events/org_id/${args.org_id}/uuid/${uuid}`);
+  const response = await api.get(`file_events/org_id/${args.org_id}/uuid/${uuid}`, {
+    params: {
+      start: start ? new Date(start).toISOString() : null,
+      end: end ? new Date(end).toISOString() : null,
+      order,
+      limit,
+    }
+  });
   console.log(response.data);
 }
 

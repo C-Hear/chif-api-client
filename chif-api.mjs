@@ -146,6 +146,8 @@ const api = axios.create({
   headers: {
     Authorization: `Bearer ${args.token}`,
   },
+  maxContentLength: Infinity,
+  maxBodyLength: Infinity,
 });
 
 let log = (message) => console.error(message);

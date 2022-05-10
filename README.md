@@ -30,13 +30,14 @@ Commands:
   chif-api.mjs decode     Decode CHIF
   chif-api.mjs status     Get CHIF task status
   chif-api.mjs download   Download encoded CHIF
+  chif-api.mjs getEvents  Get recent CHIF events
   chif-api.mjs block      Block CHIF
   chif-api.mjs unblock    Unblock CHIF
   chif-api.mjs getBlock   Get CHIF block status
-  chif-api.mjs getFiles   Get CHIF files information
   chif-api.mjs delete     Delete CHIF
   chif-api.mjs publish    Publish CHIF
   chif-api.mjs unpublish  Unpublish CHIF
+  chif-api.mjs getFiles   Get CHIF files information
 
 Options:
   --help     Show help                                                 [boolean]
@@ -117,6 +118,26 @@ Options:
   --chif     CHIF filename                                   [string] [required]
 ```
 
+### Get Events
+
+Get recent events for a CHIF. These are written to standard output in CSV form, so you probably want to pipe them to a file (e.g.):
+
+```sh
+$ node chif-api.mjs getEvents --uuid $UUID > events.csv
+```
+
+API reference:
+- [Get CHIF File Event Data by File Name](https://github.com/C-Hear/ext-chif-manager-azure-v5/tree/main/server#get-chif-file-event-data-by-file-name)
+
+```
+chif-api.mjs getEvents
+
+Get recent CHIF events
+
+Options:
+  --uuid     CHIF UUID                                       [string] [required]
+```
+
 ### Block
 
 Block a CHIF.
@@ -167,19 +188,6 @@ Options:
   --uuid     CHIF UUID                                       [string] [required]
 ```
 
-### Get Files
-
-Get file information for encoded CHIFs.
-
-API reference:
-- [Get CHIF File Information by Organization ID](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#get-chif-file-entry-information-by-organization-id)
-
-```
-chif-api.mjs getFiles
-
-Get CHIF files information
-```
-
 ### Delete
 
 Delete an encoded CHIF.
@@ -220,4 +228,17 @@ Unpublish CHIF
 
 Options:
   --uuid     CHIF UUID                                       [string] [required]
+```
+
+### Get Files
+
+Get file information for encoded CHIFs.
+
+API reference:
+- [Get CHIF File Information by Organization ID](https://github.com/C-Hear/documentation/blob/master/manager/API/readmeAzureV5.md#get-chif-file-entry-information-by-organization-id)
+
+```
+chif-api.mjs getFiles
+
+Get CHIF files information
 ```

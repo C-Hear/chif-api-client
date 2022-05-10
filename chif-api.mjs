@@ -85,6 +85,12 @@ const args = yargs(hideBin(process.argv))
       description: 'CHIF filename',
       demandOption: true,
     }))
+  .command('getEvents', 'Get recent CHIF events', (yargs) => yargs
+    .option('uuid', {
+      type: 'string',
+      description: 'CHIF UUID',
+      demandOption: true,
+    }))
   .command('block', 'Block CHIF', (yargs) => yargs
     .option('uuid', {
       type: 'string',
@@ -113,7 +119,6 @@ const args = yargs(hideBin(process.argv))
       description: 'CHIF UUID',
       demandOption: true,
     }))
-  .command('getFiles', 'Get CHIF files information')
   .command('delete', 'Delete CHIF', (yargs) => yargs
     .option('uuid', {
       type: 'string',
@@ -132,6 +137,7 @@ const args = yargs(hideBin(process.argv))
       description: 'CHIF UUID',
       demandOption: true,
     }))
+  .command('getFiles', 'Get CHIF files information')
   .demandCommand(1)
   .parse();
 
@@ -172,6 +178,9 @@ withDefer(async (defer) => {
       case 'download':
         await download(args.uuid, args.chif);
         break;
+      case 'getEvents':
+        await getEvents(args.uuid);
+        break;
       case 'block':
         await block(args.uuid, args.code, args.reason);
         break;
@@ -183,9 +192,6 @@ withDefer(async (defer) => {
         console.log(JSON.stringify(block, null, '  '));
         break;
       }
-      case 'getFiles':
-        await getFiles();
-        break;
       case 'delete':
         await del(args.uuid);
         break;
@@ -195,6 +201,9 @@ withDefer(async (defer) => {
         break;
       case 'unpublish':
         await unpublish(args.uuid);
+        break;
+      case 'getFiles':
+        await getFiles();
         break;
       default:
         log(`Unknown command: ${args._[0]}`);
@@ -310,6 +319,12 @@ function download(uuid, chif) {
   });
 }
 
+async function getEvents(uuid) {
+  await log(`Getting events`);
+  const response = await api.get(`file_events/org_id/${args.org_id}/uuid/${uuid}`);
+  console.log(response.data);
+}
+
 async function block(uuid, code, reason) {
   await log(`Blocking ${uuid}: ${code}: ${reason}`);
   const response = await api.post(`block_file/org_id/${args.org_id}/uuid/${uuid}`, { code, reason });
@@ -328,12 +343,6 @@ async function getBlock(uuid) {
   return response.data;
 }
 
-async function getFiles() {
-  await log(`Getting files`);
-  const response = await api.get(`get_file_entry/org_id/${args.org_id}`);
-  console.log(JSON.stringify(response.data, null, '  '));
-}
-
 async function del(uuid) {
   await log(`Deleting ${uuid}`);
   const response = await api.delete(`delete_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
@@ -350,6 +359,12 @@ async function unpublish(uuid) {
   await log(`Unpublishing ${uuid}`);
   const response = await api.delete(`unpublish_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
   return response.data;
+}
+
+async function getFiles() {
+  await log(`Getting files`);
+  const response = await api.get(`get_file_entry/org_id/${args.org_id}`);
+  console.log(JSON.stringify(response.data, null, '  '));
 }
 
 function wrap(value, fn) {

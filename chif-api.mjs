@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
 import axios from 'axios';
-import { config } from 'dotenv';
+import dotenv from 'dotenv';
+import * as findUp from 'find-up';
 import FormData from 'form-data';
 import fs from 'fs/promises';
-import { hideBin } from 'yargs/helpers';
 import path from 'path';
-import { pipeline } from 'stream/promises';
+import stream from 'stream/promises';
+import url from 'url';
 import yargs from 'yargs';
+import * as helpers from 'yargs/helpers';
 
-// Read settings from .env
-config();
+await configEnv();
 
-const args = yargs(hideBin(process.argv))
+const args = yargs(helpers.hideBin(process.argv))
   .option('url', {
     type: 'string',
     description: 'API base URL',
@@ -319,7 +320,7 @@ function decode(chif, manifest) {
     defer(() => zipHandle.close());
 
     await log(`Downloading ${filename}`);
-    await pipeline(response.data, zipHandle.createWriteStream());
+    await stream.pipeline(response.data, zipHandle.createWriteStream());
   });
 }
 
@@ -337,7 +338,7 @@ function download(uuid, chif) {
     defer(() => outputHandle.close());
 
     response = await axios.get(response.data.url, { responseType: 'stream' });
-    await pipeline(response.data, outputHandle.createWriteStream());
+    await stream.pipeline(response.data, outputHandle.createWriteStream());
   });
 }
 
@@ -394,6 +395,19 @@ async function getFiles() {
   await log(`Getting files`);
   const response = await api.get(`get_file_entry/org_id/${args.org_id}`);
   console.log(JSON.stringify(response.data, null, '  '));
+}
+
+// Apply .env up from cwd or script location
+async function configEnv() {
+  let envPath = await findUp.findUp(".env");
+  if (!envPath) {
+    const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+    envPath = await findUp.findUp(".env", { cwd: dirname });
+  }
+
+  if (envPath) {
+    dotenv.config({ path: envPath });
+  }
 }
 
 function wrap(value, fn) {

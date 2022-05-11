@@ -2,11 +2,15 @@
   "name": "chif-api-client",
   "version": "1.0.2",
   "main": "chif-api.mjs",
+  "scripts": {
+    "postinstall": "node scripts/postinstall.mjs"
+  },
   "dependencies": {
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
     "find-up": "^6.3.0",
     "form-data": "^4.0.0",
+    "inquirer": "^8.2.4",
     "yargs": "^17.4.1"
   }
 }

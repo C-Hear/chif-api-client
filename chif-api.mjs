@@ -4,6 +4,7 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import FormData from 'form-data';
 import fs from 'fs/promises';
+import os from 'os';
 import path from 'path';
 import stream from 'stream/promises';
 import url from 'url';
@@ -246,9 +247,17 @@ function encode(manifest, chif, shouldDownload, shouldPublish) {
 
     // Attach the manifest
     const manifestContent = await fs.readFile(manifest);
-    form.append('manifest', manifestContent, { filename: manifest });
-
     const manifestData = JSON.parse(manifestContent);
+
+    manifestData.metadata ||= {};
+    manifestData.metadata.createdBy = {
+      host: os.hostname(),
+      user: os.userInfo().username,
+      ip: (await axios.get("https://api.ipify.org")).data,
+    };
+
+    form.append('manifest', JSON.stringify(manifestData), { filename: manifest });
+
     for (const [name, part] of Object.entries(manifestData.files.parts)) {
       // Attach each file
       const handle = await fs.open(path.resolve(dir, part.filename));

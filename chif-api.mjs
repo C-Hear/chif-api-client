@@ -2,7 +2,6 @@
 
 import axios from 'axios';
 import dotenv from 'dotenv';
-import * as findUp from 'find-up';
 import FormData from 'form-data';
 import fs from 'fs/promises';
 import path from 'path';
@@ -397,17 +396,11 @@ async function getFiles() {
   console.log(JSON.stringify(response.data, null, '  '));
 }
 
-// Apply .env up from cwd or script location
+// Apply .env in script location then cwd
 async function configEnv() {
-  let envPath = await findUp.findUp(".env");
-  if (!envPath) {
-    const dirname = path.dirname(url.fileURLToPath(import.meta.url));
-    envPath = await findUp.findUp(".env", { cwd: dirname });
-  }
-
-  if (envPath) {
-    dotenv.config({ path: envPath });
-  }
+  const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+  dotenv.config({ path: path.resolve(dirname, ".env") });
+  dotenv.config();
 }
 
 function wrap(value, fn) {

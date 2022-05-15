@@ -145,6 +145,11 @@ const args = yargs(helpers.hideBin(process.argv))
       type: 'string',
       description: 'CHIF UUID',
       demandOption: true,
+    })
+    .option('unpublish', {
+      type: 'boolean',
+      description: 'Also unpublish from CDN',
+      default: false
     }))
   .command('publish', 'Publish CHIF', (yargs) => yargs
     .option('uuid', {
@@ -157,6 +162,11 @@ const args = yargs(helpers.hideBin(process.argv))
       type: 'string',
       description: 'CHIF UUID',
       demandOption: true,
+    })
+    .option('delete', {
+      type: 'boolean',
+      description: 'Also delete private copy',
+      default: false,
     }))
   .command('getFiles', 'Get CHIF files information')
   .demandCommand(1)
@@ -216,14 +226,14 @@ withDefer(async (defer) => {
         break;
       }
       case 'delete':
-        await del(args.uuid);
+        await del(args.uuid, args.unpublish);
         break;
       case 'publish':
         const { url } = await publish(args.uuid);
         log(`CDN URL: ${url}`);
         break;
       case 'unpublish':
-        await unpublish(args.uuid);
+        await unpublish(args.uuid, args.delete);
         break;
       case 'getFiles':
         await getFiles();
@@ -385,9 +395,12 @@ async function getBlock(uuid) {
   return response.data;
 }
 
-async function del(uuid) {
+async function del(uuid, shouldUnpublish) {
   await log(`Deleting ${uuid}`);
   const response = await api.delete(`delete_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
+  if (shouldUnpublish) {
+    await unpublish(uuid, false);
+  }
   return response.data;
 }
 
@@ -397,9 +410,12 @@ async function publish(uuid) {
   return response.data;
 }
 
-async function unpublish(uuid) {
+async function unpublish(uuid, shouldDelete) {
   await log(`Unpublishing ${uuid}`);
   const response = await api.delete(`unpublish_file/org_id/${args.org_id}/file_entry_id/${uuid}`);
+  if (shouldDelete) {
+    await del(uuid, false);
+  }
   return response.data;
 }
 

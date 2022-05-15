@@ -233,7 +233,11 @@ withDefer(async (defer) => {
         break;
     }
   } catch (err) {
-    await log(err.stack);
+    if (err.response) {
+      await log(JSON.stringify(err.response.data, null, '  '));
+    } else {
+      await log(err.stack);
+    }
   }
 });
 

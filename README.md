@@ -205,7 +205,8 @@ chif-api.mjs delete
 Delete CHIF
 
 Options:
-  --uuid     CHIF UUID                                       [string] [required]
+  --uuid       CHIF UUID                                     [string] [required]
+  --unpublish  Also unpublish from CDN                [boolean] [default: false]
 ```
 
 ### Publish
@@ -232,6 +233,7 @@ Unpublish CHIF
 
 Options:
   --uuid     CHIF UUID                                       [string] [required]
+  --delete   Also delete private copy                 [boolean] [default: false]
 ```
 
 ### Get Files

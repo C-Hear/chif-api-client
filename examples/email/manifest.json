@@ -1,0 +1,36 @@
+{
+  "files": {
+    "parts": {
+      "email_pdf": {
+        "filename": "email.pdf",
+        "type": "pdf",
+        "crypto": {
+          "passphrase": "email"
+        }
+      },
+      "email_voice": {
+        "filename": "email.mp3",
+        "type": "audio"
+      },
+      "mountain": {
+        "filename": "mountain.jpg",
+        "type": "image"
+      }
+    },
+    "sets": [
+      {
+        "name": "set_1",
+        "parts": [
+          "mountain",
+          "email_voice"
+        ]
+      },
+      {
+        "name": "set_2",
+        "parts": [
+          "email_pdf"
+        ]
+      }
+    ]
+  }
+}

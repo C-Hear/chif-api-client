@@ -230,7 +230,7 @@ withDefer(async (defer) => {
         break;
       case 'publish':
         const { url } = await publish(args.uuid);
-        log(`CDN URL: ${url}`);
+        log(`CDN URL: ${cdnViewerUrl(url)}`);
         break;
       case 'unpublish':
         await unpublish(args.uuid, args.delete);
@@ -309,7 +309,7 @@ function encode(manifest, chif, shouldDownload, shouldPublish) {
 
     if (shouldPublish) {
       const { url } = await publish(uuid);
-      log(`CDN URL: ${url}`);
+      log(`CDN URL: ${cdnViewerUrl(url)}`);
     }
   });
 }
@@ -434,6 +434,10 @@ async function configEnv() {
 
 function wrap(value, fn) {
   return fn(value)
+}
+
+function cdnViewerUrl(url) {
+  return url.replace(/\/([^/]+).chif$/, '/index.html#$1');
 }
 
 async function withDefer(fn) {

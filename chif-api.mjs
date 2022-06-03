@@ -354,13 +354,11 @@ async function status(uuid) {
 
 function download(uuid, chif) {
   return withDefer(async (defer) => {
-    await log(`Downloading ${chif}`);
-    let response = await api.get(`download_file/org_id/${args.org_id}/file_entry_id/${uuid}.chif`);
-
     const outputHandle = await fs.open(chif, 'w', 0o644);
     defer(() => outputHandle.close());
 
-    response = await axios.get(response.data.url, { responseType: 'stream' });
+    await log(`Downloading ${chif}`);
+    const response = await api.get(`download_file/org_id/${args.org_id}/file_entry_id/${uuid}`, { responseType: 'stream' });
     await stream.pipeline(response.data, outputHandle.createWriteStream());
   });
 }

@@ -293,9 +293,10 @@ function encode(manifest, chif, shouldDownload, shouldPublish) {
     // Check the status
     await log('Waiting on task');
     while (true) {
-      const { queue_status } = await status(uuid);
+      const { queue_status, response } = await status(uuid);
       if (queue_status === 'failed') {
-        throw new Error('Task failed');
+        log(`Task failed: ${response}`);
+        return;
       } else if (queue_status === 'completed') {
         break;
       }

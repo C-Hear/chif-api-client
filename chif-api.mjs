@@ -46,7 +46,6 @@ const args = yargs(helpers.hideBin(process.argv))
     .option('chif', {
       type: 'string',
       description: 'CHIF filename',
-      demandOption: true,
     })
     .option('download', {
       type: 'boolean',
@@ -253,11 +252,11 @@ withDefer(async (defer) => {
 
 function encode(manifest, chif, shouldDownload, shouldPublish) {
   return withDefer(async (defer) => {
-    await log(`Encoding ${chif} from ${manifest}`);
+    await log(`Encoding${chif ? ` ${chif}` : ''} from ${manifest}`);
     const dir = path.resolve(path.dirname(manifest));
 
     const form = new FormData();
-    form.append('chifFilename', path.basename(chif).replace(/\.chif$/i, ''));
+    if (chif) form.append('chifName', path.basename(chif).replace(/\.chif$/i, ''));
 
     // Attach the manifest
     const manifestContent = await fs.readFile(manifest);
@@ -288,6 +287,7 @@ function encode(manifest, chif, shouldDownload, shouldPublish) {
     });
 
     const uuid = response.data.task_id;
+    chif ||= `${uuid}.chif`;
     log(`CHIF UUID: ${uuid}`);
 
     // Check the status

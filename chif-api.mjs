@@ -269,7 +269,7 @@ function encode(manifest, chif, shouldDownload, shouldPublish) {
       ip: (await axios.get("https://api.ipify.org")).data,
     };
 
-    form.append('manifest', JSON.stringify(manifestData), { filename: manifest });
+    form.append('manifest', JSON.stringify(manifestData));
 
     for (const [name, part] of Object.entries(manifestData.files.parts)) {
       // Attach each file
